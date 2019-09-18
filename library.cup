@@ -1,0 +1,138 @@
+// Non terminal Declarations
+non terminal stmt_list, stmt, if, while, assignment, print;
+non terminal exp;
+non terminal mineq, majeq;
+non terminal decl_list, decl, var_list, var;
+non terminal type, array;
+non terminal if_condition, while_condition;
+non terminal id;
+
+// Precedences and associativities
+// lower precedences
+precedence left OR;
+precedence left AND;
+precedence left NOT;
+precedence left MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ;
+precedence left PLUS, MINUS;
+precedence left STAR, DIV;
+precedence left UMINUS;
+// higher precedences
+
+
+//////////////////////////////////////
+// Declarations
+//////////////////////////////////////
+
+// List of declarations
+decl_list ::= decl_list decl |
+;
+
+// Single declaration with list of variables
+decl ::= type var_list S
+    | type error S {: pSynWarning("Error in declaration"); :}
+;
+
+type ::= INT_TYPE | DOUBLE_TYPE
+;
+
+// List of variables
+var_list ::= var
+    | var_list CM var
+;
+
+var ::= ID array
+;
+
+array ::= | array SO INT SC
+;
+
+//////////////////////////////////////
+// Instructions
+//////////////////////////////////////
+
+stmt_list ::= stmt_list stmt | stmt
+            | error stmt {: pSynWarning("Error in statement"); :}
+;
+
+// List of different statement
+stmt ::= if | while | assignment | print | BO stmt_list BC
+    | BO stmt_list error BC {: pSynWarning("Missing ; before }"); :}
+    | BO error BC {: pSynWarning("Missing ; before }"); :}
+    | error S {: pSynWarning("Error in statement"); :}
+;
+
+// Assignment instruction
+assignment ::= id S
+    | id EQ exp S
+    | id EQ error S {: pSynWarning("Error in expression"); :}
+    | error EQ exp S {: pSynWarning("Error in assigment"); :}
+;
+
+// PRINT instruction
+print ::= PRINT id S
+          | PRINT error S {: pSynWarning("Error in 'print' instruction"); :}
+;
+
+// IF instruction
+if ::= IF if_condition stmt ELSE stmt
+     | IF if_condition stmt
+     | IF if_condition stmt error stmt {: pSynWarning("Error 'else' expected in 'if' instruction"); :}
+
+;
+
+if_condition ::= RO exp RC
+    | RO error RC {: pSynWarning("Error in 'if' condition"); :}
+    | error exp RC {: pSynWarning("Error '(' expected in 'if' instruciton"); :}
+    | RO exp error  {: pSynWarning("Error ')' expected in 'if' instruciton"); :}
+;
+
+
+// WHILE instruction
+while ::= WHILE while_condition stmt
+;
+
+while_condition ::= RO exp RC
+    | RO error RC {: pSynWarning("Error in 'while' condition"); :}
+    | error exp RC {: pSynWarning("Error '(' expected in 'while' instruciton"); :}
+    | RO exp error  {: pSynWarning("Error ')' expected in 'while' instruciton"); :}
+;
+
+
+// Expressions
+exp ::=
+    /* Logical expressions */
+    exp AND exp
+    | exp OR exp
+    | NOT exp
+
+    /* Comparison expressions */
+    | exp EQ EQ exp
+    | exp MIN exp
+    | exp MAJ exp
+    | exp mineq exp
+    | exp majeq exp
+
+    /* Arithmetic expression */
+    | exp PLUS exp
+    | exp MINUS exp
+    | exp STAR exp
+    | exp DIV exp
+    | RO exp RC
+    | id
+    | INT
+    | DOUBLE
+    | MINUS INT
+    | MINUS DOUBLE
+    | RO error RC {: pSynWarning("Error in expression"); :}
+;
+
+
+mineq ::= MIN_EQ | EQ_MIN;
+majeq ::= MAJ_EQ | EQ_MAJ;
+
+
+id ::= ID
+      | ID SO INT SC
+      | ID SO ID SC
+      | error SC {: pSynWarning("Error in vector"); :}
+;
