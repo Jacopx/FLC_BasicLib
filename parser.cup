@@ -123,11 +123,13 @@ terminal ID;
 terminal DATE;
 terminal RO, RC, BO, BC, SO, SC, S, CM, DOT;
 terminal PLUS, MINUS, STAR, DIV;
-terminal MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ, DASH;
+terminal MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ, DASH, POW;
 terminal AND, ANDAND, OR, OROR, NOT, NOTEQ;
 terminal INT_TYPE, DOUBLE_TYPE;
 terminal UMINUS;
-terminal START, STATE, DONE, CASE, NEW, ESSE, IS, STORE, IN, RANGE, AVG, CONFIG, HUM, TEMP;
+terminal START, STATE, DONE, CASE, NEW, ESSE, IS;
+terminal STORE, IN, OUT, RANGE, AVG, CONFIG, HUM;
+terminal TEMP, RUN, SEARCH, GO, GOTO, MAXW, MINW;
 terminal String LETTERS;
 
 terminal TOK1, TOK2, TOK3;
@@ -158,6 +160,7 @@ precedence left NOTEQ;
 precedence left MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ;
 precedence left PLUS, MINUS;
 precedence left STAR, DIV;
+precedence left POW;
 precedence left UMINUS;
 // higher precedences
 
@@ -207,6 +210,7 @@ exp ::=
     | exp:a majeq exp:b {: RESULT = (Double.parseDouble(a.toString()) >= Double.parseDouble(b.toString())); :}
 
     /* Arithmetic expression */
+    | exp:a POW exp:b {: RESULT = Math.pow(Double.parseDouble(a.toString()), Double.parseDouble(b.toString())); :}
     | exp:a PLUS exp:b {: RESULT = Double.parseDouble(a.toString()) + Double.parseDouble(b.toString()); :}
     | exp:a MINUS exp:b {: RESULT = Double.parseDouble(a.toString()) - Double.parseDouble(b.toString()); :}
     | exp:a STAR exp:b {: RESULT = Double.parseDouble(a.toString()) * Double.parseDouble(b.toString()); :}

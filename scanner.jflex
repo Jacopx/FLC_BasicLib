@@ -58,6 +58,7 @@ year			=	[0-9]{4}
 "+"     {if (_DEBUG) System.out.print("PLUS "); return symbol(sym.PLUS);}
 "-"     {if (_DEBUG) System.out.print("MINUS "); return symbol(sym.MINUS);}
 "*"     {if (_DEBUG) System.out.print("STAR "); return symbol(sym.STAR);}
+"^"     {if (_DEBUG) System.out.print("POW "); return symbol(sym.POW);}
 "/"     {if (_DEBUG) System.out.print("DIV "); return symbol(sym.DIV);}
 "<"     {if (_DEBUG) System.out.print("MIN "); return symbol(sym.MIN);}
 ">"     {if (_DEBUG) System.out.print("MAJ "); return symbol(sym.MAJ);}
@@ -74,7 +75,9 @@ year			=	[0-9]{4}
 "."     {if (_DEBUG) System.out.print("DOT "); return symbol(sym.DOT);}
 "#"     {if (_DEBUG) System.out.print("DASH "); return symbol(sym.DASH);}
 
+"INT"   {if (_DEBUG) System.out.print("INT_TYPE "); return symbol(sym.INT_TYPE);}
 "int"   {if (_DEBUG) System.out.print("INT_TYPE "); return symbol(sym.INT_TYPE);}
+"DOUBLE" {if (_DEBUG) System.out.print("DOUBLE_TYPE "); return symbol(sym.DOUBLE_TYPE);}
 "double" {if (_DEBUG) System.out.print("DOUBLE_TYPE "); return symbol(sym.DOUBLE_TYPE);}
 
 WHILE   {if (_DEBUG) System.out.print("WHILE "); return symbol(sym.WHILE);}
@@ -108,6 +111,8 @@ IS      {if (_DEBUG) System.out.print("IS "); return symbol(sym.IS);}
 is      {if (_DEBUG) System.out.print("IS "); return symbol(sym.IS);}
 IN     	{if (_DEBUG) System.out.print("IN "); return symbol(sym.IN);}
 in     	{if (_DEBUG) System.out.print("IN "); return symbol(sym.IN);}
+OUT	      {if (_DEBUG) System.out.print("OUT "); return symbol(sym.OUT);}
+out	      {if (_DEBUG) System.out.print("OUT "); return symbol(sym.OUT);}
 RANGE      {if (_DEBUG) System.out.print("RANGE "); return symbol(sym.RANGE);}
 range      {if (_DEBUG) System.out.print("RANGE "); return symbol(sym.RANGE);}
 S	      {if (_DEBUG) System.out.print("ESSE "); return symbol(sym.ESSE);}
@@ -117,6 +122,18 @@ TEMPERATURE	      {if (_DEBUG) System.out.print("TEMP "); return symbol(sym.TEMP
 temperature	      {if (_DEBUG) System.out.print("TEMP "); return symbol(sym.TEMP);}
 HUMIDITY	      {if (_DEBUG) System.out.print("HUM "); return symbol(sym.HUM);}
 humidity	      {if (_DEBUG) System.out.print("HUM "); return symbol(sym.HUM);}
+RUN	      {if (_DEBUG) System.out.print("RUN "); return symbol(sym.RUN);}
+run	      {if (_DEBUG) System.out.print("RUN "); return symbol(sym.RUN);}
+SEARCH	      {if (_DEBUG) System.out.print("SEARCH "); return symbol(sym.SEARCH);}
+search	      {if (_DEBUG) System.out.print("SEARCH "); return symbol(sym.SEARCH);}
+GO	      {if (_DEBUG) System.out.print("GO "); return symbol(sym.GO);}
+go	      {if (_DEBUG) System.out.print("GO "); return symbol(sym.GO);}
+GOTO	      {if (_DEBUG) System.out.print("GOTO "); return symbol(sym.GOTO);}
+goto	      {if (_DEBUG) System.out.print("GOTO "); return symbol(sym.GOTO);}
+MAX	      {if (_DEBUG) System.out.print("MAX "); return symbol(sym.MAXW);}
+max	      {if (_DEBUG) System.out.print("MAX "); return symbol(sym.MAXW);}
+MIN	      {if (_DEBUG) System.out.print("MIN "); return symbol(sym.MINW);}
+min	      {if (_DEBUG) System.out.print("MIN "); return symbol(sym.MINW);}
 
 ;       {if (_DEBUG) System.out.println("S"); return symbol(sym.S);}
 ,       {if (_DEBUG) System.out.print("CM "); return symbol(sym.CM);}
