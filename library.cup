@@ -126,42 +126,11 @@ exp ::=
     | RO error RC {: pSynWarning("Error in expression"); :}
 ;
 
-// Expressions IMPROVED
-exp ::=
-    /* Logical expressions */
-    exp:a ANDAND exp:b {: RESULT = ((Boolean) a && (Boolean) b); :}
-    | exp:a OR exp:b {: RESULT = ((Boolean) a || (Boolean) b); :}
-    | exp:a NOTEQ exp:b {: RESULT = compareObj(a, b); :}
-
-    | NOT exp:a {: RESULT = a +" NOT"; :}
-
-    /* Comparison expressions */
-    | exp:a EQ EQ exp:b {: RESULT = (Double.parseDouble(a.toString()) == Double.parseDouble(b.toString())); :}
-    | exp:a MIN exp:b {: RESULT = (Double.parseDouble(a.toString()) < Double.parseDouble(b.toString())); :}
-    | exp:a MAJ exp:b {: RESULT = (Double.parseDouble(a.toString()) > Double.parseDouble(b.toString())); :}
-    | exp:a mineq exp:b {: RESULT = (Double.parseDouble(a.toString()) <= Double.parseDouble(b.toString())); :}
-    | exp:a majeq exp:b {: RESULT = (Double.parseDouble(a.toString()) >= Double.parseDouble(b.toString())); :}
-
-    /* Arithmetic expression */
-    | exp:a PLUS exp:b {: RESULT = a + " " + b + " +"; :}
-    | exp:a MINUS exp:b {: RESULT = a + " " + b + " -"; :}
-    | exp:a STAR exp:b {: RESULT = a + " " + b + " *"; :}
-    | exp:a DIV exp:b {: RESULT = a + " " + b + " /"; :}
-    | RO exp:x RC {: RESULT = x; :}
-    | id:x {: RESULT = x; :}
-    | id:a DOT id:b {: RESULT = ((HashMap) parser.sym.get(a)).get(b).toString(); :}
-    | INT:x {: RESULT = x; :}
-    | DOUBLE:x {: RESULT = x; :}
-    | MINUS INT:x {: RESULT = Double.parseDouble("-" + x.toString()); :} %prec UMINUS
-    | MINUS DOUBLE:x {: RESULT = Double.parseDouble("-" + x.toString()); :} %prec UMINUS
-;
-
-
 mineq ::= MIN_EQ | EQ_MIN;
 majeq ::= MAJ_EQ | EQ_MAJ;
 
 
-id ::= ID
+id ::= ID:x {: RESULT=x; :}
       | ID SO INT SC
       | ID SO ID SC
       | error SC {: pSynWarning("Error in vector"); :}

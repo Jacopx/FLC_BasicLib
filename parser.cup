@@ -45,24 +45,23 @@ parser code {:
           return (((Symbol)stack.elementAt(tos+position)).value);
       }
 
-    // Return semantic value of symbol in position (position)
+      // Return semantic value of symbol in position (position)
       public void setStack(int position, Object val) {
           ((Symbol)stack.elementAt(tos+position)).value = val;
       }
+          // Return the line number of actual symbol
+      public int getLine() {
+          if (((Symbol)stack.elementAt(tos)).left != -1){
+              return ((Symbol)stack.elementAt(tos)).left+1;
+          } else return -1;
+      }
 
-        // Return the line number of actual symbol
-    public int getLine() {
-        if (((Symbol)stack.elementAt(tos)).left != -1){
-            return ((Symbol)stack.elementAt(tos)).left+1;
-        }else return -1;
-    }
-    // Return the column number of actual symbol
-    public int getColumn() {
-        if (((Symbol)stack.elementAt(tos)).left != -1){
-            return ((Symbol)stack.elementAt(tos)).right+1;
-        }else return -1;
-    }
-
+      // Return the column number of actual symbol
+      public int getColumn() {
+          if (((Symbol)stack.elementAt(tos)).left != -1){
+              return ((Symbol)stack.elementAt(tos)).right+1;
+          } else return -1;
+      }
 
     :};
 
@@ -90,8 +89,26 @@ action code {:
     private String min(HashMap h) {
       return Collections.min(h.values()).toString();
     }
+
     private String max(HashMap h) {
       return Collections.max(h.values()).toString();
+    }
+
+    private void p(String s) {
+      System.out.println(s);
+    }
+
+    private void p(Object s) {
+      System.out.println(s.toString());
+    }
+
+    // Print a table of the Stack
+    public void printStack() {
+        System.out.println("\n\n-----------------------------");
+        for (int i=0; i<stack.size(); i++ ) {
+          System.out.println("| " + (-i) +" :: " + stack(-i) + " |");
+        }
+        System.out.println("-----------------------------\n");
     }
 
 :}
@@ -101,26 +118,48 @@ action code {:
 terminal Integer INT;
 terminal Double DOUBLE;
 
-terminal WHILE, ELSE;
+terminal WHILE, ELSE, PRINT, IF, FI, DO;
 terminal ID;
 terminal DATE;
-terminal RO, RC, BO, BC, S, CM, SO, SC;
+terminal RO, RC, BO, BC, SO, SC, S, CM, DOT;
 terminal PLUS, MINUS, STAR, DIV;
-terminal MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ;
-terminal AND, ANDAND, NOTEQ, OR, OROR, NOT;
+terminal MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ, DASH;
+terminal AND, ANDAND, OR, OROR, NOT, NOTEQ;
 terminal INT_TYPE, DOUBLE_TYPE;
 terminal UMINUS;
-terminal START, STATE, DONE, CASE, NEW, FI, IF, PRINT, DO, DOT, ESSE;
+terminal START, STATE, DONE, CASE, NEW, ESSE, IS, STORE, IN, RANGE, AVG, CONFIG, HUM, TEMP;
 terminal String LETTERS;
+
+terminal TOK1, TOK2, TOK3;
 
 
 // Non terminal tokens
 non terminal prog;
-non terminal missing_non_term;
+non terminal header;
 
 non terminal String stmt_list, stmt;
+non terminal var_list, var;
+non terminal case_list, case;
 non terminal Object exp;
 non terminal Object id;
+non terminal mineq, majeq;
+non terminal sep;
+non terminal print;
+
+
+// Precedences and associativities
+// lower precedences
+precedence left OR;
+precedence left OROR;
+precedence left AND;
+precedence left ANDAND;
+precedence left NOT;
+precedence left NOTEQ;
+precedence left MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ;
+precedence left PLUS, MINUS;
+precedence left STAR, DIV;
+precedence left UMINUS;
+// higher precedences
 
 //////////////////////////////////////
 // Grammar start
@@ -129,5 +168,66 @@ non terminal Object id;
 start with prog;
 
 
-prog ::= missing_non_term {: if (parser.isCorrect) System.out.println("Program correctly recognized"); :}
+prog ::= var_list {: if (parser.isCorrect) p("Program correctly recognized"); :}
+;
+
+sep ::= DASH DASH DASH DASH
+;
+
+var_list ::= var
+          | var_list CM var
+;
+
+var ::= ID:var EQ exp:val {: p(var + "=" + val); parser.sym.put(var, val);  :}
+;
+
+stmt_list ::= stmt_list stmt | stmt
+;
+
+stmt ::= print | BO stmt_list BC
+;
+
+print ::= PRINT id S
+;
+
+// Expressions IMPROVED
+exp ::=
+    /* Logical expressions */
+    exp:a ANDAND exp:b {: RESULT = ((Boolean) a && (Boolean) b); :}
+    | exp:a OROR exp:b {: RESULT = ((Boolean) a || (Boolean) b); :}
+    | exp:a NOTEQ exp:b {: RESULT = compareObj(a, b); :}
+
+    | NOT exp:a {: RESULT = a +" NOT"; :}
+
+    /* Comparison expressions */
+    | exp:a EQ EQ exp:b {: RESULT = (Double.parseDouble(a.toString()) == Double.parseDouble(b.toString())); :}
+    | exp:a MIN exp:b {: RESULT = (Double.parseDouble(a.toString()) < Double.parseDouble(b.toString())); :}
+    | exp:a MAJ exp:b {: RESULT = (Double.parseDouble(a.toString()) > Double.parseDouble(b.toString())); :}
+    | exp:a mineq exp:b {: RESULT = (Double.parseDouble(a.toString()) <= Double.parseDouble(b.toString())); :}
+    | exp:a majeq exp:b {: RESULT = (Double.parseDouble(a.toString()) >= Double.parseDouble(b.toString())); :}
+
+    /* Arithmetic expression */
+    | exp:a PLUS exp:b {: RESULT = Double.parseDouble(a.toString()) + Double.parseDouble(b.toString()); :}
+    | exp:a MINUS exp:b {: RESULT = Double.parseDouble(a.toString()) - Double.parseDouble(b.toString()); :}
+    | exp:a STAR exp:b {: RESULT = Double.parseDouble(a.toString()) * Double.parseDouble(b.toString()); :}
+    | exp:a DIV exp:b {: RESULT = Double.parseDouble(a.toString()) / Double.parseDouble(b.toString()); :}
+
+    /* Final assignment */
+    | RO exp:x RC {: RESULT = x; :}
+    | id:x {: if(parser.sym.containsKey(x)){RESULT = parser.sym.get(x);} else {RESULT = x;} :}
+    | id:a DOT id:b {: RESULT = ((HashMap) parser.sym.get(a)).get(b).toString(); :}
+    | INT:x {: RESULT = x; :}
+    | DOUBLE:x {: RESULT = x; :}
+    | MINUS INT:x {: RESULT = Double.parseDouble("-" + x.toString()); :} %prec UMINUS
+    | MINUS DOUBLE:x {: RESULT = Double.parseDouble("-" + x.toString()); :} %prec UMINUS
+;
+
+
+mineq ::= MIN_EQ | EQ_MIN;
+majeq ::= MAJ_EQ | EQ_MAJ;
+
+
+id ::= ID:x {: RESULT = x; :}
+      | ID SO INT SC
+      | ID SO ID SC
 ;
