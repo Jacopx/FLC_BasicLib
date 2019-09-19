@@ -1,8 +1,16 @@
 import java_cup.runtime.*;
 import java.io.*;
+import java.util.HashMap;
+import java.util.Vector;
+import java.util.Collections;
 
+init with {:
+    sym = new HashMap();
+:};
 
 parser code {:
+
+    public HashMap sym;
 
     public boolean isCorrect = true;
 
@@ -24,7 +32,23 @@ parser code {:
             } else System.err.print(": ");
         else System.err.print(": ");
     }
+
     public void syntax_error(Symbol cur_token){}
+
+      // Return actual symbol
+      public Symbol getToken() {
+          return ((Symbol)stack.elementAt(tos));
+      }
+
+      // Return semantic value of symbol in position (position)
+      public Object stack(int position) {
+          return (((Symbol)stack.elementAt(tos+position)).value);
+      }
+
+    // Return semantic value of symbol in position (position)
+      public void setStack(int position, Object val) {
+          ((Symbol)stack.elementAt(tos+position)).value = val;
+      }
 
         // Return the line number of actual symbol
     public int getLine() {
@@ -55,6 +79,21 @@ action code {:
         parser.isCorrect = false;
     }
 
+    private Boolean compareObj(Object a, Object b) {
+      if(a instanceof Boolean) {
+        return (Boolean) a != (Boolean) b;
+      } else {
+        return (Double.parseDouble(a.toString()) != Double.parseDouble(b.toString()));
+      }
+    }
+
+    private String min(HashMap h) {
+      return Collections.min(h.values()).toString();
+    }
+    private String max(HashMap h) {
+      return Collections.max(h.values()).toString();
+    }
+
 :}
 
 
@@ -62,22 +101,26 @@ action code {:
 terminal Integer INT;
 terminal Double DOUBLE;
 
-terminal PRINT, IF, WHILE, ELSE;
+terminal WHILE, ELSE;
 terminal ID;
 terminal DATE;
 terminal RO, RC, BO, BC, S, CM, SO, SC;
 terminal PLUS, MINUS, STAR, DIV;
 terminal MIN, MAJ, MIN_EQ, EQ_MIN, MAJ_EQ, EQ_MAJ, EQ;
-terminal AND, OR, NOT;
+terminal AND, ANDAND, NOTEQ, OR, OROR, NOT;
 terminal INT_TYPE, DOUBLE_TYPE;
 terminal UMINUS;
+terminal START, STATE, DONE, CASE, NEW, FI, IF, PRINT, DO, DOT, ESSE;
+terminal String LETTERS;
 
 
 // Non terminal tokens
 non terminal prog;
 non terminal missing_non_term;
 
-
+non terminal String stmt_list, stmt;
+non terminal Object exp;
+non terminal Object id;
 
 //////////////////////////////////////
 // Grammar start
